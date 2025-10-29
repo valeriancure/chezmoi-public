@@ -39,8 +39,5 @@ source <(fzf --zsh)
 # p10k config
 [[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
 
-# fnm (node version manager)
-eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh --log-level=quiet)"
-
 # Aliases
 alias batc='bat --color=always --style=numbers'

@@ -19,6 +19,10 @@ RUN useradd -m -s /bin/bash testuser && \
 USER testuser
 WORKDIR /home/testuser
 
+# Copy dotfiles directly to chezmoi source directory
+RUN mkdir -p /home/testuser/.local/share
+COPY --chown=testuser:testuser . /home/testuser/.local/share/chezmoi/
+
 # Install chezmoi
 RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /home/testuser/.local/bin
 
