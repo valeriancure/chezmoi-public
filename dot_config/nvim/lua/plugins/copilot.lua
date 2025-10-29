@@ -1,0 +1,53 @@
+return {
+  --   -- {
+  --   --   "zbirenbaum/copilot.lua",
+  --   --   opts = {
+  --   --     suggestion = { enabled = true },
+  --   --   },
+  --   -- },
+  --
+  --   -- Import copilot extra (you can also use `:LazyExtras` to install it)
+  --   { import = "lazyvim.plugins.extras.ai.copilot" },
+  --
+  --   -- Source replacement
+  --   {
+  --     "giuxtaposition/blink-cmp-copilot",
+  --     enabled = false,
+  --   },
+  --   {
+  --     "saghen/blink.cmp",
+  --     dependencies = { "fang2hou/blink-copilot" },
+  --     opts = {
+  --       sources = {
+  --         providers = {
+  --           copilot = {
+  --             module = "blink-copilot",
+  --           },
+  --         },
+  --       },
+  --     },
+  --   },
+  --   -- optional:
+  --   -- {
+  --   --   "zbirenbaum/copilot.lua",
+  --   --   enabled = false,
+  --   -- },
+  --   -- {
+  --   --   "github/copilot.vim",
+  --   --   cmd = "Copilot",
+  --   --   event = "BufWinEnter",
+  --   --   init = function()
+  --   --     vim.g.copilot_no_maps = true
+  --   --   end,
+  --   --   config = function()
+  --   --     -- Block the normal Copilot suggestions
+  --   --     vim.api.nvim_create_autocmd({ "FileType", "BufUnload" }, {
+  --   --       group = "github_copilot",
+  --   --       callback = function(args)
+  --   --         vim.fn["copilot#On" .. args.event]()
+  --   --       end,
+  --   --     })
+  --   --     vim.fn["copilot#OnFileType"]()
+  --   --   end,
+  --   -- },
+}

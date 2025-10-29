@@ -1,0 +1,27 @@
+FROM almalinux:10
+
+# Install basic dependencies
+RUN dnf install -y \
+    gcc \
+    gcc-c++ \
+    make \
+    curl \
+    file \
+    git \
+    procps-ng \
+    sudo \
+    && dnf clean all
+
+# Create test user with sudo
+RUN useradd -m -s /bin/bash testuser && \
+    echo "testuser ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers
+
+USER testuser
+WORKDIR /home/testuser
+
+# Install chezmoi
+RUN sh -c "$(curl -fsLS get.chezmoi.io)" -- -b /home/testuser/.local/bin
+
+ENV PATH="/home/testuser/.local/bin:${PATH}"
+
+CMD ["/bin/bash"]

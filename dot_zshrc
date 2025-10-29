@@ -1,0 +1,46 @@
+# Enable Powerlevel10k instant prompt
+if [[ -r "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh" ]]; then
+  source "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
+fi
+
+# Path
+export PATH=$HOME/bin:$HOME/.local/bin:/usr/local/bin:$PATH
+
+# Homebrew
+if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+  eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+fi
+
+# Oh-my-zsh
+export ZSH="$HOME/.oh-my-zsh"
+export EDITOR='nvim'
+export VI_MODE_SET_CURSOR=true
+
+ZSH_THEME="powerlevel10k/powerlevel10k"
+
+plugins=( \
+  git \
+  command-not-found \
+  z \
+  docker \
+  colored-man-pages \
+  zsh-autosuggestions \
+  zsh-syntax-highlighting \
+  zsh-ssh \
+  vi-mode \
+  fzf \
+)
+
+source $ZSH/oh-my-zsh.sh
+
+# fzf integration
+source <(fzf --zsh)
+
+# p10k config
+[[ ! -f ~/.p10k.zsh ]] || source ~/.p10k.zsh
+
+# fnm (node version manager)
+eval "$(fnm env --use-on-cd --version-file-strategy=recursive --shell zsh --log-level=quiet)"
+
+# Aliases
+alias batc='bat --color=always --style=numbers'

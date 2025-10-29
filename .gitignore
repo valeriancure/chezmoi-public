@@ -1,0 +1,21 @@
+# Sensitive files patterns
+*.env
+*.key
+*.pem
+*secret*
+*token*
+*password*
+
+# Chezmoi dot_ syntax for sensitive files
+dot_env*
+dot_*secret*
+dot_*token*
+dot_*password*
+dot_*key*
+dot_ssh/
+private_*
+encrypted_*
+
+# SSH and GPG
+.ssh/
+.gnupg/
