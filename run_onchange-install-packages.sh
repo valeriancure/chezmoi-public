@@ -35,11 +35,12 @@ else
       jesseduffield/lazydocker/lazydocker \
       jesseduffield/lazygit/lazygit \
       ncdu \
-      neovim \
       ripgrep \
       tmux \
       yq \
       zsh
+
+    HOMEBREW_NO_ENV_HINTS=true brew install --quiet --head neovim
 fi
 
 echo "=== Setting zsh as default shell ==="
