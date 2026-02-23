@@ -4,34 +4,38 @@ set -e
 
 cat "$(realpath "$0")"
 
-echo "=== Checking Homebrew installation ==="
-if ! command -v brew &> /dev/null; then
-    echo "Homebrew not found. Installing..."
-    NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-    
-    # Add brew to PATH for this script
-    if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
-        eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
-    fi
+if [ -n "${CHEZMOI_NO_BREW:-}" ]; then
+    echo "=== Skipping Homebrew installation and packages because CHEZMOI_NO_BREW is set ==="
 else
-    echo "Homebrew already installed"
-fi
+    echo "=== Checking Homebrew installation ==="
+    if ! command -v brew &> /dev/null; then
+        echo "Homebrew not found. Installing..."
+        NONINTERACTIVE=1 /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+        
+        # Add brew to PATH for this script
+        if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+            eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
+        fi
+    else
+        echo "Homebrew already installed"
+    fi
 
-echo "=== Installing packages via Homebrew ==="
-HOMEBREW_NO_ENV_HINTS=true brew install --quiet \
-  bat \
-  fd \
-  fzf \
-  gh \
-  jq \
-  jesseduffield/lazydocker/lazydocker \
-  jesseduffield/lazygit/lazygit \
-  ncdu \
-  neovim \
-  ripgrep \
-  tmux \
-  yq \
-  zsh
+    echo "=== Installing packages via Homebrew ==="
+    HOMEBREW_NO_ENV_HINTS=true brew install --quiet \
+      bat \
+      fd \
+      fzf \
+      gh \
+      jq \
+      jesseduffield/lazydocker/lazydocker \
+      jesseduffield/lazygit/lazygit \
+      ncdu \
+      neovim \
+      ripgrep \
+      tmux \
+      yq \
+      zsh
+fi
 
 echo "=== Setting zsh as default shell ==="
 zsh_path=$(command -v zsh)
@@ -46,6 +50,7 @@ ln -sf ~/.tmux/.tmux.conf ~/.tmux.conf
 
 echo "=== Loading Homebrew environment ==="
 if [ -f /home/linuxbrew/.linuxbrew/bin/brew ]; then
+    echo "=== Loading Homebrew environment ==="
     eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"
     echo "Homebrew binaries are now in PATH"
 fi
