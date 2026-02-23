@@ -27,7 +27,7 @@ The installation script will:
 
 ## Requirements
 
-- Sudo access (for installing Homebrew dependencies and changing shell)
+- Sudo access (optional): required only to register zsh in `/etc/shells` and set it as your default login shell. Without sudo, the script still completes and prints the commands you can run later.
 - curl
 - git
 
