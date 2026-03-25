@@ -38,6 +38,7 @@ else
     ncdu \
     ripgrep \
     tmux \
+    unzip \
     yq \
     zsh
 
