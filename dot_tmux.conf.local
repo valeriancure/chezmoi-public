@@ -409,6 +409,9 @@ set -g @tmux-dotbar-fg-current "#cdd6f4"
 set -g @tmux-dotbar-fg-session "#9399b2"
 set -g @tmux-dotbar-fg-prefix "#cba6f7"
 
+bind -n WheelUpStatusLeft switch-client -p
+bind -n WheelDownStatusLeft switch-client -n
+
 set -g @plugin 'christoomey/vim-tmux-navigator'
 
 set -g @plugin 'omerxx/tmux-floax'
