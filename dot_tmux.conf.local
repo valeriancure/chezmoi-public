@@ -409,6 +409,11 @@ set -g @tmux-dotbar-fg-current "#cdd6f4"
 set -g @tmux-dotbar-fg-session "#9399b2"
 set -g @tmux-dotbar-fg-prefix "#cba6f7"
 
+# allow OSC 52 clipboard writes and terminal passthrough from programs inside tmux
+set -g set-clipboard on
+set -g allow-passthrough on
+set -as terminal-features ',xterm-kitty:clipboard'
+
 bind -n WheelUpStatusLeft switch-client -p
 bind -n WheelDownStatusLeft switch-client -n
 
