@@ -1,0 +1,143 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+use MIME::Base64 qw(decode_base64);
+use File::Path qw(make_path);
+use File::Spec;
+use POSIX qw(strftime);
+
+my $target_pane = shift @ARGV // "";
+my $timeout = $ENV{TMUX_RECEIVE_FILE_TIMEOUT} // 90;
+my $cache_dir = $ENV{TMUX_RECEIVE_FILE_DIR}
+  // File::Spec->catdir($ENV{HOME} // ".", ".cache", "terminal-files");
+
+sub say_status {
+  my ($message) = @_;
+  print "$message\n";
+}
+
+sub fail {
+  my ($message) = @_;
+  say_status("");
+  say_status($message);
+  sleep 4;
+  exit 1;
+}
+
+sub sanitize_name {
+  my ($name, $mime) = @_;
+  $name //= "";
+  $name =~ s/\r|\n//g;
+  $name =~ s!.*/!!g;
+  $name =~ s/[^A-Za-z0-9._-]+/_/g;
+  $name =~ s/^\.//;
+  $name =~ s/_+/_/g;
+  $name =~ s/^_+|_+$//g;
+
+  if ($name eq "") {
+    my %ext_for = (
+      "image/png" => "png",
+      "image/jpeg" => "jpg",
+      "image/gif" => "gif",
+      "image/webp" => "webp",
+      "application/pdf" => "pdf",
+      "text/plain" => "txt",
+    );
+    my $ext = $ext_for{$mime // ""} // "bin";
+    $name = "clipboard.$ext";
+  }
+
+  return $name;
+}
+
+sub unique_path {
+  my ($dir, $name) = @_;
+  my $stamp = strftime("%Y%m%d-%H%M%S", localtime);
+  my ($base, $ext) = $name =~ /\A(.+?)(\.[^.]+)?\z/;
+  $ext //= "";
+  my $candidate = File::Spec->catfile($dir, "$stamp-$base$ext");
+  my $i = 1;
+
+  while (-e $candidate) {
+    $candidate = File::Spec->catfile($dir, "$stamp-$base-$i$ext");
+    $i++;
+  }
+
+  return $candidate;
+}
+
+sub parse_header {
+  my ($line) = @_;
+  my %meta;
+
+  while ($line =~ /([A-Za-z0-9_-]+)=("(?:[^"\\]|\\.)*"|\S+)/g) {
+    my ($key, $value) = ($1, $2);
+    if ($value =~ /^"(.*)"$/) {
+      $value = $1;
+      $value =~ s/\\(["\\])/$1/g;
+    }
+    $meta{$key} = $value;
+  }
+
+  return %meta;
+}
+
+$SIG{ALRM} = sub { fail("No complete file envelope was received before the timeout."); };
+alarm $timeout;
+
+say_status("Waiting for a terminal file payload...");
+say_status("This pane is safe to kill with tmux prefix + x.");
+say_status("");
+
+my $header = "";
+while (defined(my $line = <STDIN>)) {
+  chomp $line;
+  if ($line =~ /^__TERMINAL_FILE_BEGIN__(?:\s+(.*))?$/) {
+    $header = $1 // "";
+    last;
+  }
+}
+
+fail("No __TERMINAL_FILE_BEGIN__ marker received.") if $header eq "" && eof(STDIN);
+
+my %meta = parse_header($header);
+my $name = sanitize_name($meta{name}, $meta{mime});
+my $payload = "";
+my $saw_end = 0;
+
+while (defined(my $line = <STDIN>)) {
+  chomp $line;
+  if ($line eq "__TERMINAL_FILE_END__") {
+    $saw_end = 1;
+    last;
+  }
+  $line =~ s/\s+//g;
+  $payload .= $line;
+}
+
+alarm 0;
+fail("No __TERMINAL_FILE_END__ marker received.") if !$saw_end;
+fail("The received payload was empty.") if $payload eq "";
+
+my $bytes = eval { decode_base64($payload) };
+fail("The received payload was not valid base64.") if $@ || !defined $bytes;
+
+make_path($cache_dir);
+my $path = unique_path($cache_dir, $name);
+open my $out, ">:raw", $path or fail("Could not create $path: $!");
+print {$out} $bytes;
+close $out or fail("Could not finish writing $path: $!");
+
+my $pasted = 0;
+if ($target_pane ne "" && system("tmux", "set-buffer", "--", $path) == 0) {
+  $pasted = system("tmux", "paste-buffer", "-p", "-t", $target_pane) == 0;
+}
+
+say_status("");
+say_status("Received file:");
+say_status($path);
+say_status("");
+say_status($pasted
+  ? "The path was pasted into the target tmux pane."
+  : "No target tmux pane was available; copy the path above.");
+sleep 2;

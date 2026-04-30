@@ -417,6 +417,10 @@ set -as terminal-features ',xterm-kitty:clipboard'
 bind -n WheelUpStatusLeft switch-client -p
 bind -n WheelDownStatusLeft switch-client -n
 
+# Receive a base64 file payload pasted/sent through the terminal, then paste the
+# resulting remote path into the pane that requested it.
+bind C-y run-shell 'tmux split-window -v -l 12 -c "#{pane_current_path}" "tmux-receive-file #{pane_id}"'
+
 set -g @plugin 'christoomey/vim-tmux-navigator'
 
 set -g @plugin 'omerxx/tmux-floax'
