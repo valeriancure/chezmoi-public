@@ -39,6 +39,7 @@ else
     ripgrep \
     tmux \
     unzip \
+    yazi \
     yq \
     zsh
 
